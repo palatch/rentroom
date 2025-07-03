@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ระบบบันทึกค่าเช่า</title>
+  <!-- ฟอนต์ภาษาไทย -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Kanit', 'Prompt', 'Sarabun', sans-serif;
+      background: linear-gradient(135deg, #f0ffdf 0%, #c0efb0 70%, #2d5d35 100%);
+      color: #194b27;
+      min-height: 100vh;
+    }
+    .appbar {
+      background: linear-gradient(90deg, #26764a 60%, #f8d778 100%);
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-align: left;
+      padding: 20px 0 10px 70px;
+      border-radius: 0 0 24px 24px;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 20px 0 #26764a44;
+      position: relative;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .appbar .yak-logo {
+      position: absolute;
+      left: 15px;
+      top: 10px;
+      width: 45px;
+      height: 45px;
+      background: none;
+      z-index: 10;
+    }
+    .main {
+      max-width: 920px;
+      margin: 24px auto 80px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 22px 14px 38px 14px;
+      box-shadow: 0 8px 36px 0 #26764a26;
+      border: 1.5px solid #bae2c6;
+    }
+    .mb-2 { margin-bottom: 16px;}
+    .flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .input, input[type='number'], input[type='date'], input[type='text'] {
+      border: 1.7px solid #65a642;
+      border-radius: 10px;
+      padding: 10px 11px;
+      margin-bottom: 8px;
+      font-size: 1.13rem;
+      width: 100%;
+      background: #f9fff1;
+      box-shadow: 0 2px 8px #d5ffd1;
+      color: #194b27;
+      transition: border .18s, background .17s;
+    }
+    input:focus { border: 2.2px solid #f8d778; background: #f6ffe2;}
+    button {
+      background: linear-gradient(90deg, #26764a 70%, #f8d778 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.07rem;
+      padding: 12px 22px;
+      font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 7px;
+      cursor: pointer;
+      box-shadow: 0 3px 14px #b0ffcc44, 0 2px 7px #ecdebe41;
+      transition: background .14s;
+    }
+    button:last-child { margin-right: 0;}
+    button:hover { background: linear-gradient(90deg, #51a95c 80%, #ffe487 100%);}
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 28px;
+      background: #f8ffe4ee;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 20px #26764a10;
+    }
+    th, td {
+      border: 1.2px solid #a6e184;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 1.04rem;
+      background: #f8fff2b3;
+    }
+    th {
+      background: linear-gradient(90deg, #bfffa1 70%, #f8d778 100%);
+      font-weight: bold;
+      color: #256434;
+      border-top: 2.5px solid #65a642;
+    }
+    tr:nth-child(even) td {
+      background: #eaffd7;
+    }
+    .room-card {
+      border: 2.2px solid #6cca52;
+      border-radius: 13px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 9px #a6e18455;
+      padding: 11px 5px 7px 5px;
+      background: linear-gradient(120deg, #fbffe7 75%, #e4f3d4 100%);
+      position: relative;
+    }
+    .room-card.expiring {
+      border-color: #e53935;
+      background: linear-gradient(90deg, #fff0f0 60%, #e4f3d4 100%);
+      box-shadow: 0 2px 14px #ff5b5b45;
+    }
+    .room-title {
+      font-weight: bold;
+      color: #26764a;
+      font-size: 1.17rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+    .alert-expire {
+      background: linear-gradient(90deg, #e5393566 50%, #f8d778 100%);
+      color: #e53935;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.95em;
+      font-weight: bold;
+      margin: 3px 0 7px 0;
+      box-shadow: 0 0 5px #f11e;
+      display: inline-block;
+    }
+    .section-label {
+      color: #194b27;
+      font-size: 1.08rem;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+    .del-btn {
+      background: #fff7f7;
+      color: #e53935;
+      border: 1.1px solid #ffbcbc;
+      margin: 0 2px 0 1px;
+      border-radius: 8px;
+      padding: 4px 11px;
+      font-size: .97rem;
+    }
+    .edit-btn {
+      background: #f8d778;
+      color: #256434;
+      border: 1.1px solid #bae2c6;
+      border-radius: 8px;
+      padding: 4px 15px;
+      font-size: .97rem;
+      margin-left: 3px;
+      font-weight: 700;
+    }
+    .tabbar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, #65a642 80%, #f8d778 100%);
+      border-top: 2px solid #e9ffb3;
+      display: flex;
+      z-index: 99;
+      box-shadow: 0 -2px 16px #26764a24;
+    }
+    .tabbar-btn {
+      flex: 1;
+      padding: 14px 2px 7px 2px;
+      text-align: center;
+      font-size: 1.11rem;
+      color: #256434;
+      font-weight: 600;
+      background: none;
+      border: none;
+      border-radius: 0;
+      transition: background .12s;
+      cursor: pointer;
+      position: relative;
+    }
+    .tabbar-btn.active {
+      color: #fff;
+      background: linear-gradient(90deg, #bfffa1 60%, #f8d778 100%);
+      box-shadow: 0 1px 4px #e6ffe855;
+    }
+    .tabbar-btn .icon { font-size: 1.16em; display: block;}
+    /* Edit form overlay */
+    .overlay {
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,.18);
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .edit-form-box {
+      background: #fff;
+      border-radius: 17px;
+      box-shadow: 0 6px 30px #26764a42;
+      padding: 24px 20px;
+      min-width: 260px;
+      max-width: 92vw;
+      max-height: 95vh;
+      overflow-y: auto;
+    }
+    .edit-form-box label { font-weight: 500; color: #26764a;}
+    @media (max-width: 700px) {
+      .main { padding: 8px 2vw 23px 2vw; margin-top: 8px;}
+      .appbar { font-size: 1.06rem; padding: 10px 0 3px 65px; min-height: 54px;}
+      table, th, td { font-size: 0.96rem;}
+      .appbar .yak-logo { width: 36px; height: 36px;}
+      .edit-form-box { padding: 14px 6vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="appbar">
+    <span class="yak-logo">
+      <svg viewBox="0 0 64 64" fill="none">
+        <ellipse cx="32" cy="32" rx="30" ry="28" fill="#35823d" stroke="#d7c77d" stroke-width="3"/>
+        <ellipse cx="32" cy="39" rx="14" ry="8" fill="#fff7e0"/>
+        <ellipse cx="24" cy="33" rx="3.5" ry="3.8" fill="#fff" stroke="#49782f" stroke-width="1.2"/>
+        <ellipse cx="40" cy="33" rx="3.5" ry="3.8" fill="#fff" stroke="#49782f" stroke-width="1.2"/>
+        <ellipse cx="24" cy="33" rx="1.3" ry="1.5" fill="#35823d"/>
+        <ellipse cx="40" cy="33" rx="1.3" ry="1.5" fill="#35823d"/>
+        <rect x="22" y="40" width="20" height="4" rx="2" fill="#ffc970" stroke="#49782f" stroke-width="1"/>
+        <ellipse cx="32" cy="47" rx="5.8" ry="2.3" fill="#fff" stroke="#e53935" stroke-width="0.9"/>
+        <ellipse cx="27" cy="47" rx="1.2" ry="0.9" fill="#e53935"/>
+        <ellipse cx="37" cy="47" rx="1.2" ry="0.9" fill="#e53935"/>
+        <path d="M16 26 Q32 12 48 26" stroke="#d7c77d" stroke-width="2.1" fill="none"/>
+        <ellipse cx="21.5" cy="26" rx="2.1" ry="1.5" fill="#e53935"/>
+        <ellipse cx="42.5" cy="26" rx="2.1" ry="1.5" fill="#e53935"/>
+        <ellipse cx="32" cy="58" rx="9" ry="2.3" fill="#d7c77d" opacity="0.85"/>
+        <rect x="25.2" y="16" width="13.5" height="5" rx="2.2" fill="#d7c77d" stroke="#49782f" stroke-width="0.9"/>
+        <ellipse cx="32" cy="16" rx="2.2" ry="1.5" fill="#35823d"/>
+        <rect x="27.1" y="44" width="1.6" height="3" rx="0.6" fill="#fff" stroke="#e53935" stroke-width="0.6"/>
+        <rect x="35.3" y="44" width="1.6" height="3" rx="0.6" fill="#fff" stroke="#e53935" stroke-width="0.6"/>
+      </svg>
+    </span>
+    ระบบบันทึกค่าเช่า
+  </div>
+  <div class="main" id="main"></div>
+  <div class="tabbar">
+    <button class="tabbar-btn" id="tab-home" onclick="renderHome()"><span class="icon">🏠</span>หน้าหลัก</button>
+    <button class="tabbar-btn" id="tab-rooms" onclick="renderRooms()"><span class="icon">🏛️</span>ห้องทั้งหมด</button>
+    <button class="tabbar-btn" id="tab-add" onclick="renderAddRoom()"><span class="icon">➕</span>เพิ่มห้อง</button>
+    <button class="tabbar-btn" id="tab-summary" onclick="renderSummary()"><span class="icon">📊</span>สรุป</button>
+    <button class="tabbar-btn" id="tab-settings" onclick="renderSettings()"><span class="icon">⚙️</span>ตั้งค่า</button>
+  </div>
+  <div id="overlay" style="display:none"></div>
+  <script>
+    // LocalStorage Keys
+    const LS_ROOMS = "rooms_rentapp_thai";
+    const LS_LOGIN = "login_rentapp_thai";
+
+    let rooms = JSON.parse(localStorage.getItem(LS_ROOMS) || '[]');
+    let login = JSON.parse(localStorage.getItem(LS_LOGIN) || 'false');
+
+    // Routing/page state
+    function setTab(tabid) {
+      ["tab-home","tab-rooms","tab-add","tab-summary","tab-settings"].forEach(t=>{
+        document.getElementById(t).classList.remove("active");
+      });
+      document.getElementById(tabid).classList.add("active");
+    }
+
+    function renderHome() {
+      setTab("tab-home");
+      document.getElementById("main").innerHTML = `
+        <div style="text-align:center;margin-top:28px;">
+          <h2 style="color:#26764a;font-size:1.7em;">ระบบบันทึกค่าเช่า</h2>
+          <div style="margin:24px 0;">
+            <button onclick="renderLogin()">เข้าสู่ระบบ</button>
+          </div>
+          <div style="margin:10px 0;">
+            <button onclick="renderAddRoom()">➕ เพิ่มห้อง</button>
+            <button onclick="renderRooms()">🏛️ ห้องทั้งหมด</button>
+            <button onclick="renderSummary()">📊 สรุป</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLogin() {
+      setTab("tab-home");
+      document.getElementById("main").innerHTML = `
+        <div style="max-width:350px;margin:36px auto 0 auto;padding:30px 20px 20px 20px;background:rgba(250,255,235,0.96);border-radius:16px;box-shadow:0 4px 32px #c6e2c055;">
+          <div style="text-align:center;margin-bottom:18px;">
+            <span class="yak-logo" style="position:relative;top:4px;left:0;width:36px;height:36px;vertical-align:middle;">
+              <svg viewBox="0 0 64 64" width="36" height="36"><ellipse cx="32" cy="32" rx="30" ry="28" fill="#35823d" stroke="#d7c77d" stroke-width="3"/><ellipse cx="32" cy="39" rx="14" ry="8" fill="#fff7e0"/><ellipse cx="24" cy="33" rx="3.5" ry="3.8" fill="#fff" stroke="#49782f" stroke-width="1.2"/><ellipse cx="40" cy="33" rx="3.5" ry="3.8" fill="#fff" stroke="#49782f" stroke-width="1.2"/><ellipse cx="24" cy="33" rx="1.3" ry="1.5" fill="#35823d"/><ellipse cx="40" cy="33" rx="1.3" ry="1.5" fill="#35823d"/><rect x="22" y="40" width="20" height="4" rx="2" fill="#ffc970" stroke="#49782f" stroke-width="1"/><ellipse cx="32" cy="47" rx="5.8" ry="2.3" fill="#fff" stroke="#e53935" stroke-width="0.9"/><ellipse cx="27" cy="47" rx="1.2" ry="0.9" fill="#e53935"/><ellipse cx="37" cy="47" rx="1.2" ry="0.9" fill="#e53935"/><path d="M16 26 Q32 12 48 26" stroke="#d7c77d" stroke-width="2.1" fill="none"/><ellipse cx="21.5" cy="26" rx="2.1" ry="1.5" fill="#e53935"/><ellipse cx="42.5" cy="26" rx="2.1" ry="1.5" fill="#e53935"/><ellipse cx="32" cy="58" rx="9" ry="2.3" fill="#d7c77d" opacity="0.85"/><rect x="25.2" y="16" width="13.5" height="5" rx="2.2" fill="#d7c77d" stroke="#49782f" stroke-width="0.9"/><ellipse cx="32" cy="16" rx="2.2" ry="1.5" fill="#35823d"/><rect x="27.1" y="44" width="1.6" height="3" rx="0.6" fill="#fff" stroke="#e53935" stroke-width="0.6"/><rect x="35.3" y="44" width="1.6" height="3" rx="0.6" fill="#fff" stroke="#e53935" stroke-width="0.6"/></svg>
+            </span>
+            <div style="font-size:1.1em;color:#26764a;margin:8px 0 6px 0;">เข้าสู่ระบบผู้ดูแล</div>
+          </div>
+          <form id="loginForm">
+            <div>
+              <label>ชื่อผู้ใช้</label>
+              <input class="input" id="user" required autocomplete="username" maxlength="30"/>
+            </div>
+            <div>
+              <label>รหัสผ่าน</label>
+              <input class="input" id="pass" type="password" required autocomplete="current-password" maxlength="20"/>
+            </div>
+            <button type="submit">เข้าสู่ระบบ</button>
+            <div id="loginMsg" style="color:#e53935;font-size:.97em;margin-top:8px;"></div>
+          </form>
+        </div>
+      `;
+      document.getElementById('loginForm').onsubmit = function(e){
+        e.preventDefault();
+        let u = document.getElementById('user').value.trim();
+        let p = document.getElementById('pass').value.trim();
+        if(u==="admin" && p==="0000") {
+          login = true;
+          localStorage.setItem(LS_LOGIN,"true");
+          renderHome();
+        } else {
+          document.getElementById('loginMsg').innerText = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+        }
+      }
+    }
+
+    // ------------------- ห้องทั้งหมด
+    function renderRooms() {
+      setTab("tab-rooms");
+      let html = `<h2 style="color:#26764a;text-align:center;">🏛️ ห้องเช่าทั้งหมด</h2>
+      ${rooms.length === 0 ? '<div style="text-align:center;">ยังไม่มีข้อมูลห้อง</div>' : ''}
+      <div>`;
+      rooms.forEach((r, idx) => {
+        let diffMonth = monthsUntil(r.endDate);
+        let expClass = (diffMonth <= 3 && diffMonth >= 0) ? "expiring" : "";
+        let expireMsg = "";
+        if (diffMonth <= 3 && diffMonth >= 0) expireMsg = `<div class="alert-expire">สัญญาเหลือ ${diffMonth} เดือน</div>`;
+        if (diffMonth < 0) expireMsg = `<div class="alert-expire" style="background:#b71c1c;color:#fff;">หมดสัญญาแล้ว</div>`;
+        html += `<div class="room-card ${expClass}">
+          <div class="room-title">
+            <span>
+              <svg viewBox="0 0 32 32" width="32" height="32"><ellipse cx="16" cy="16" rx="14" ry="13" fill="#35823d" stroke="#d7c77d" stroke-width="1.3"/><ellipse cx="16" cy="19.5" rx="7.2" ry="3.8" fill="#fff7e0"/><ellipse cx="11.6" cy="16" rx="1.7" ry="2" fill="#fff" stroke="#49782f" stroke-width="0.5"/><ellipse cx="20.4" cy="16" rx="1.7" ry="2" fill="#fff" stroke="#49782f" stroke-width="0.5"/><ellipse cx="11.6" cy="16" rx="0.6" ry="0.8" fill="#35823d"/><ellipse cx="20.4" cy="16" rx="0.6" ry="0.8" fill="#35823d"/><rect x="10.4" y="20" width="11" height="1.7" rx="0.7" fill="#ffc970" stroke="#49782f" stroke-width="0.3"/><ellipse cx="16" cy="23" rx="2.7" ry="0.9" fill="#fff" stroke="#e53935" stroke-width="0.4"/><ellipse cx="13.2" cy="23" rx="0.5" ry="0.4" fill="#e53935"/><ellipse cx="18.8" cy="23" rx="0.5" ry="0.4" fill="#e53935"/><path d="M6.6 13 Q16 7 25.4 13" stroke="#d7c77d" stroke-width="0.8" fill="none"/><ellipse cx="9.4" cy="13" rx="0.9" ry="0.7" fill="#e53935"/><ellipse cx="22.6" cy="13" rx="0.9" ry="0.7" fill="#e53935"/><ellipse cx="16" cy="28.5" rx="4" ry="0.9" fill="#d7c77d" opacity="0.85"/><rect x="12" y="9" width="8" height="2.1" rx="0.9" fill="#d7c77d" stroke="#49782f" stroke-width="0.3"/><ellipse cx="16" cy="9" rx="1" ry="0.7" fill="#35823d"/><rect x="13" y="21" width="0.7" height="1.5" rx="0.4" fill="#fff" stroke="#e53935" stroke-width="0.2"/><rect x="18.3" y="21" width="0.7" height="1.5" rx="0.4" fill="#fff" stroke="#e53935" stroke-width="0.2"/></svg>
+            </span>
+            ${r.roomNo} | ${r.address}
+            <button class="edit-btn" onclick="editRoom(${idx})">แก้ไขห้อง</button>
+            <button class="del-btn" onclick="delRoom(${idx})">ลบ</button>
+          </div>
+          ${expireMsg}
+          <div style="margin-bottom:3px;">
+            <b>เริ่มสัญญา:</b> ${r.startDate ? r.startDate : "-"}
+            <b>ถึง:</b> ${r.endDate ? r.endDate : "-"}
+            <b>ค่าเช่าต่อเดือน:</b> ${r.rent ? parseInt(r.rent).toLocaleString() : "-"} บาท
+            <b>ครบกำหนดชำระ:</b> ${r.dueDate || "-"}
+          </div>
+          <div class="section-label">💰 รายรับ</div>
+          <div>
+            <b>เงินประกัน:</b> ${r.deposit ? parseInt(r.deposit).toLocaleString() : "-"}
+            <button onclick="editDeposit(${idx})">แก้ไข</button>
+          </div>
+          <div style="margin-top:7px;">
+            <b>ค่าเช่าแต่ละเดือน:</b>
+            <button onclick="addRent(${idx})">+ เพิ่มเดือน</button>
+            <ul style="margin:6px 0 6px 14px;padding:0;">
+              ${r.rentList?.map((rent,i)=>`
+                <li>
+                  เดือน ${rent.month} – ${parseInt(rent.amount).toLocaleString()} บาท
+                  <button class="del-btn" style="padding:2px 7px;" onclick="delRent(${idx},${i})">ลบ</button>
+                </li>
+              `).join("")||''}
+            </ul>
+          </div>
+          <div>
+            <b>ค่าปรับ:</b>
+            <button onclick="addFine(${idx})">+ เพิ่มค่าปรับ</button>
+            <ul style="margin:4px 0 4px 14px;padding:0;">
+              ${r.fines?.map((f,i)=>`
+                <li>
+                  ${f.note||'ค่าปรับ'} – ${parseInt(f.amount).toLocaleString()} บาท (${f.date||''})
+                  <button class="del-btn" style="padding:2px 7px;" onclick="delFine(${idx},${i})">ลบ</button>
+                </li>
+              `).join("")||''}
+            </ul>
+          </div>
+          <div class="section-label">📦 รายจ่าย</div>
+          <div>
+            <button onclick="addExpense(${idx})">+ เพิ่มรายจ่าย</button>
+            <ul style="margin:4px 0 4px 14px;padding:0;">
+              ${r.expenses?.map((ex,i)=>`
+                <li>
+                  ${ex.note||'รายการ'} – ${parseInt(ex.amount).toLocaleString()} บาท (${ex.date||''})
+                  <button class="del-btn" style="padding:2px 7px;" onclick="delExpense(${idx},${i})">ลบ</button>
+                </li>
+              `).join("")||''}
+            </ul>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+      document.getElementById("main").innerHTML = html;
+    }
+
+    // ------------------- เพิ่ม/แก้ไข/ลบ ข้อมูล
+    function renderAddRoom() {
+      setTab("tab-add");
+      document.getElementById("main").innerHTML = `
+        <h2 style="color:#26764a;">➕ เพิ่มห้องใหม่</h2>
+        <form id="roomForm" style="max-width:410px;margin:auto;">
+          <div>
+            <label>หมายเลขห้อง *</label>
+            <input class="input" name="roomNo" required maxlength="20">
+          </div>
+          <div>
+            <label>บ้านเลขที่ *</label>
+            <input class="input" name="address" required maxlength="40">
+          </div>
+          <div>
+            <label>วันที่เริ่มต้นสัญญา *</label>
+            <input class="input" type="date" name="startDate" required>
+          </div>
+          <div>
+            <label>วันที่สิ้นสุดสัญญา *</label>
+            <input class="input" type="date" name="endDate" required>
+          </div>
+          <div>
+            <label>ค่าเช่าต่อเดือน (บาท) *</label>
+            <input class="input" type="number" name="rent" required min="1">
+          </div>
+          <div>
+            <label>วันที่ครบกำหนดชำระ (ตัวเลขวันที่ 1-31) *</label>
+            <input class="input" type="number" name="dueDate" min="1" max="31" required>
+          </div>
+          <div>
+            <label>เงินประกัน (บาท)</label>
+            <input class="input" type="number" name="deposit" min="0">
+          </div>
+          <button type="submit">บันทึกห้องใหม่</button>
+        </form>
+      `;
+      document.getElementById('roomForm').onsubmit = function(e){
+        e.preventDefault();
+        let fd = new FormData(this);
+        let obj = Object.fromEntries(fd.entries());
+        obj.rentList = [];
+        obj.fines = [];
+        obj.expenses = [];
+        rooms.push(obj);
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        renderRooms();
+      }
+    }
+    function delRoom(idx){
+      if(confirm("ยืนยันลบห้องนี้?")) {
+        rooms.splice(idx,1);
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        renderRooms();
+      }
+    }
+    function editDeposit(idx){
+      let amt = prompt("แก้ไขเงินประกัน (บาท):", rooms[idx].deposit || "");
+      if(amt!==null){
+        rooms[idx].deposit = amt;
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        renderRooms();
+      }
+    }
+    function addRent(idx){
+      let m = prompt("ระบุเดือน/ปี เช่น 07/2568:");
+      let amt = prompt("ยอดค่าเช่าเดือนนี้:", rooms[idx].rent || "");
+      if(m && amt){
+        if(!rooms[idx].rentList) rooms[idx].rentList=[];
+        rooms[idx].rentList.push({month: m, amount: amt});
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        renderRooms();
+      }
+    }
+    function delRent(idx,i){
+      rooms[idx].rentList.splice(i,1);
+      localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+      renderRooms();
+    }
+    function addFine(idx){
+      let note = prompt("ระบุรายละเอียดค่าปรับ:");
+      let amt = prompt("จำนวนเงิน (บาท):");
+      let date = prompt("วันที่ (เช่น 10/07/2568):");
+      if(amt){
+        if(!rooms[idx].fines) rooms[idx].fines=[];
+        rooms[idx].fines.push({note, amount: amt, date});
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        renderRooms();
+      }
+    }
+    function delFine(idx,i){
+      rooms[idx].fines.splice(i,1);
+      localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+      renderRooms();
+    }
+    function addExpense(idx){
+      let note = prompt("รายละเอียดรายจ่าย:");
+      let amt = prompt("จำนวนเงิน (บาท):");
+      let date = prompt("วันที่ (เช่น 15/07/2568):");
+      if(amt){
+        if(!rooms[idx].expenses) rooms[idx].expenses=[];
+        rooms[idx].expenses.push({note, amount: amt, date});
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        renderRooms();
+      }
+    }
+    function delExpense(idx,i){
+      rooms[idx].expenses.splice(i,1);
+      localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+      renderRooms();
+    }
+
+    // --- แก้ไขห้อง
+    function editRoom(idx) {
+      let r = rooms[idx];
+      let html = `
+        <div class="overlay" style="z-index:9999;" onclick="closeOverlay(event)">
+          <div class="edit-form-box" onclick="event.stopPropagation()">
+            <h3 style="color:#26764a;">แก้ไขรายละเอียดห้อง</h3>
+            <form id="editRoomForm">
+              <div><label>หมายเลขห้อง *</label>
+              <input class="input" name="roomNo" required maxlength="20" value="${r.roomNo||''}"></div>
+              <div><label>บ้านเลขที่ *</label>
+              <input class="input" name="address" required maxlength="40" value="${r.address||''}"></div>
+              <div><label>วันที่เริ่มต้นสัญญา *</label>
+              <input class="input" type="date" name="startDate" required value="${r.startDate||''}"></div>
+              <div><label>วันที่สิ้นสุดสัญญา *</label>
+              <input class="input" type="date" name="endDate" required value="${r.endDate||''}"></div>
+              <div><label>ค่าเช่าต่อเดือน (บาท) *</label>
+              <input class="input" type="number" name="rent" required min="1" value="${r.rent||''}"></div>
+              <div><label>วันที่ครบกำหนดชำระ (ตัวเลขวันที่ 1-31) *</label>
+              <input class="input" type="number" name="dueDate" min="1" max="31" required value="${r.dueDate||''}"></div>
+              <div><label>เงินประกัน (บาท)</label>
+              <input class="input" type="number" name="deposit" min="0" value="${r.deposit||''}"></div>
+              <div style="text-align:right;margin-top:18px;">
+                <button type="submit">บันทึกการแก้ไข</button>
+                <button type="button" onclick="closeOverlay()">ยกเลิก</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      let overlay = document.getElementById("overlay");
+      overlay.innerHTML = html;
+      overlay.style.display = "";
+      document.getElementById('editRoomForm').onsubmit = function(e){
+        e.preventDefault();
+        let fd = new FormData(this);
+        Object.assign(rooms[idx], Object.fromEntries(fd.entries()));
+        localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+        closeOverlay();
+        renderRooms();
+      }
+    }
+    function closeOverlay(e){
+      if(e && e.target!==document.getElementById("overlay")) return;
+      document.getElementById("overlay").style.display="none";
+      document.getElementById("overlay").innerHTML = "";
+    }
+
+    // ------------------- สรุป
+    function renderSummary(){
+      setTab("tab-summary");
+      let html = `<h2 style="color:#26764a;text-align:center;">📊 สรุปยอดรายรับ-รายจ่ายต่อห้อง</h2>
+      <table>
+        <tr>
+          <th>ห้อง</th>
+          <th>รายรับรวม (บาท)</th>
+          <th>รายจ่ายรวม (บาท)</th>
+          <th>ยอดสุทธิ (บาท)</th>
+        </tr>
+      `;
+      rooms.forEach(r=>{
+        let income = 0;
+        if(r.deposit) income += parseFloat(r.deposit)||0;
+        if(r.rentList) r.rentList.forEach(rn=>{income+=parseFloat(rn.amount)||0});
+        if(r.fines) r.fines.forEach(f=>{income+=parseFloat(f.amount)||0});
+        let expense = 0;
+        if(r.expenses) r.expenses.forEach(ex=>{expense+=parseFloat(ex.amount)||0});
+        let net = income-expense;
+        html+=`
+          <tr>
+            <td>${r.roomNo}</td>
+            <td>${income.toLocaleString()}</td>
+            <td>${expense.toLocaleString()}</td>
+            <td style="color:${net<0?'#e53935':'#26764a'};font-weight:bold">${net.toLocaleString()}</td>
+          </tr>
+        `;
+      });
+      html+="</table>";
+      document.getElementById("main").innerHTML = html;
+    }
+
+    // ------------------- ตั้งค่า
+    function renderSettings(){
+      setTab("tab-settings");
+      document.getElementById("main").innerHTML = `
+        <h2 style="color:#26764a;">⚙️ ตั้งค่า</h2>
+        <button style="background:#fff7f7;color:#e53935;" onclick="if(confirm('ยืนยันลบข้อมูลทั้งหมด?')) resetAll()">ล้างข้อมูลทั้งหมด</button>
+        <button onclick="exportData()">สำรองข้อมูล (Export .json)</button>
+        <input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)">
+        <button onclick="document.getElementById('importFile').click()">นำเข้าข้อมูล (Import .json)</button>
+        <div style="font-size:0.99em;margin-top:12px;">
+          ข้อมูลเก็บไว้เฉพาะในอุปกรณ์นี้เท่านั้น (localStorage)<br>
+          สำรอง/คืนค่าข้อมูลได้ด้วย Export/Import
+        </div>
+      `;
+    }
+    function resetAll(){
+      rooms=[];
+      localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+      localStorage.setItem(LS_LOGIN, "false");
+      renderHome();
+    }
+
+    // Export/Import
+    function exportData(){
+      const data = JSON.stringify(rooms, null, 2);
+      const blob = new Blob([data], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const d = new Date();
+      a.href = url;
+      a.download = `rent-backup-${d.getFullYear()}-${("0"+(d.getMonth()+1)).slice(-2)}-${("0"+d.getDate()).slice(-2)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 50);
+    }
+    function importData(ev){
+      const file = ev.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        try {
+          const data = JSON.parse(e.target.result);
+          if(Array.isArray(data)){
+            rooms = data;
+            localStorage.setItem(LS_ROOMS, JSON.stringify(rooms));
+            alert("นำเข้าข้อมูลสำเร็จ!");
+            renderRooms();
+          } else throw new Error();
+        } catch{
+          alert("ไฟล์ไม่ถูกต้อง หรือนำเข้าไม่ได้");
+        }
+      }
+      reader.readAsText(file, "utf-8");
+    }
+
+    // ------------------- Utils
+    function monthsUntil(dateStr) {
+      if(!dateStr) return 999;
+      let d = new Date(dateStr), now = new Date();
+      d.setDate(1); now.setDate(1);
+      return Math.floor((d.getFullYear()-now.getFullYear())*12 + (d.getMonth()-now.getMonth()));
+    }
+
+    // ------------------- INIT
+    if(!login) renderLogin();
+    else renderHome();
+  </script>
+</body>
+</html>
